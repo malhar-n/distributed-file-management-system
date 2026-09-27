@@ -24,6 +24,14 @@ public class MasterServer {
         NodeRegistry nodeRegistry =
                 new NodeRegistry();
 
+        Thread failureDetector =
+        new Thread(
+                new FailureDetector(nodeRegistry),
+                "FailureDetector"
+        );
+
+failureDetector.start();
+
         ObjectMapper mapper =
                 new ObjectMapper();
 
@@ -136,10 +144,14 @@ public class MasterServer {
                                     Heartbeat.class
                             );
 
-                    System.out.println(
-                            "Heartbeat received from "
-                                    + heartbeat.getNodeId()
-                    );
+                    nodeRegistry.updateHeartbeat(
+        heartbeat.getNodeId()
+);
+
+System.out.println(
+        "Heartbeat received from "
+                + heartbeat.getNodeId()
+);
                 }
             }
 

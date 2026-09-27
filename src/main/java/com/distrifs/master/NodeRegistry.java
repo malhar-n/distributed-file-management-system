@@ -10,9 +10,17 @@ public class NodeRegistry {
     private final Map<String, NodeRegistration> nodes =
             new ConcurrentHashMap<>();
 
+    private final Map<String, Long> lastHeartbeats =
+            new ConcurrentHashMap<>();
+
     public void registerNode(NodeRegistration node) {
 
         nodes.put(node.getNodeId(), node);
+
+        lastHeartbeats.put(
+                node.getNodeId(),
+                System.currentTimeMillis()
+        );
 
         System.out.println(
                 "Node added to registry: "
@@ -20,13 +28,33 @@ public class NodeRegistry {
         );
     }
 
-    public NodeRegistration getNode(String nodeId) {
-        return nodes.get(nodeId);
+    public void updateHeartbeat(String nodeId) {
+
+        if (nodes.containsKey(nodeId)) {
+
+            lastHeartbeats.put(
+                    nodeId,
+                    System.currentTimeMillis()
+            );
+        }
+    }
+
+    public long getLastHeartbeat(String nodeId) {
+
+        return lastHeartbeats.getOrDefault(
+                nodeId,
+                0L
+        );
+    }
+
+    public Map<String, NodeRegistration> getNodes() {
+        return nodes;
     }
 
     public void removeNode(String nodeId) {
 
         nodes.remove(nodeId);
+        lastHeartbeats.remove(nodeId);
 
         System.out.println(
                 "Node removed from registry: "
@@ -36,10 +64,14 @@ public class NodeRegistry {
 
     public void printNodes() {
 
-        System.out.println("\n========== NODE REGISTRY ==========");
+        System.out.println(
+                "\n========== NODE REGISTRY =========="
+        );
 
         if (nodes.isEmpty()) {
-            System.out.println("No nodes registered.");
+            System.out.println(
+                    "No nodes registered."
+            );
         }
 
         for (NodeRegistration node : nodes.values()) {
@@ -53,6 +85,8 @@ public class NodeRegistry {
             );
         }
 
-        System.out.println("====================================\n");
+        System.out.println(
+                "====================================\n"
+        );
     }
 }
