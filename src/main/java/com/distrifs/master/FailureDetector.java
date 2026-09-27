@@ -1,4 +1,5 @@
 package com.distrifs.master;
+import com.distrifs.database.NodeRepository;
 
 public class FailureDetector implements Runnable {
 
@@ -8,9 +9,17 @@ public class FailureDetector implements Runnable {
 
     private final NodeRegistry nodeRegistry;
 
-    public FailureDetector(NodeRegistry nodeRegistry) {
-        this.nodeRegistry = nodeRegistry;
-    }
+    private final NodeRepository nodeRepository;
+
+
+
+    public FailureDetector(
+        NodeRegistry nodeRegistry,
+        NodeRepository nodeRepository) {
+
+    this.nodeRegistry = nodeRegistry;
+    this.nodeRepository = nodeRepository;
+}
 
     @Override
     public void run() {
@@ -77,7 +86,21 @@ public class FailureDetector implements Runnable {
                                         + elapsed
                                         + " ms ago."
                         );
+                        try {
 
+    nodeRepository.markNodeFailed(nodeId);
+
+    System.out.println(
+            "Node status updated to FAILED in database."
+    );
+
+} catch (Exception e) {
+
+    System.err.println(
+            "Failed to update node status in database: "
+                    + e.getMessage()
+    );
+}
                         nodeRegistry.removeNode(
                                 nodeId
                         );

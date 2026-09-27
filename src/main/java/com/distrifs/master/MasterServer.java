@@ -31,7 +31,10 @@ NodeRegistry nodeRegistry =
 
         Thread failureDetector =
         new Thread(
-                new FailureDetector(nodeRegistry),
+                new FailureDetector(
+                        nodeRegistry,
+                        nodeRepository
+                ),
                 "FailureDetector"
         );
 
