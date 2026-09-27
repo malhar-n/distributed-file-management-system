@@ -1,0 +1,27 @@
+# Java compiled files
+*.class
+
+# Build output
+out/
+target/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated storage data
+storage/node1/*
+storage/node2/*
+storage/node3/*
+
+# Maven generated classpath
+cp.txt
+
+# Local configuration / secrets
+.env
+*.properties.local
