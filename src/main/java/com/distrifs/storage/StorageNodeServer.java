@@ -1,5 +1,6 @@
 package com.distrifs.storage;
 
+import com.distrifs.model.Heartbeat;
 import com.distrifs.model.NodeRegistration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -9,9 +10,13 @@ import java.net.Socket;
 public class StorageNodeServer {
 
     private static final String NODE_ID = "node-01";
+
     private static final String MASTER_HOST = "localhost";
     private static final int MASTER_PORT = 5000;
+
     private static final int NODE_PORT = 6001;
+
+    private static final long HEARTBEAT_INTERVAL_MS = 5000;
 
     public static void main(String[] args) {
 
@@ -19,12 +24,7 @@ public class StorageNodeServer {
         System.out.println("       DistriFS Storage Node");
         System.out.println("=================================");
 
-        NodeRegistration registration =
-                new NodeRegistration(
-                        NODE_ID,
-                        "localhost",
-                        NODE_PORT
-                );
+        ObjectMapper mapper = new ObjectMapper();
 
         try (
                 Socket socket = new Socket(
@@ -39,24 +39,69 @@ public class StorageNodeServer {
                         )
         ) {
 
-            ObjectMapper mapper = new ObjectMapper();
+            // -------------------------------
+            // 1. Register with Master
+            // -------------------------------
 
-            String message = mapper.writeValueAsString(
-                    registration
-            );
+            NodeRegistration registration =
+                    new NodeRegistration(
+                            NODE_ID,
+                            "localhost",
+                            NODE_PORT
+                    );
 
-            writer.println(message);
+            String registrationMessage =
+                    mapper.writeValueAsString(registration);
+
+            writer.println(registrationMessage);
 
             System.out.println(
                     "Registration sent:"
             );
 
-            System.out.println(message);
+            System.out.println(
+                    registrationMessage
+            );
+
+            // -------------------------------
+            // 2. Start heartbeat loop
+            // -------------------------------
+
+            System.out.println(
+                    "\nHeartbeat service started."
+            );
+
+            while (true) {
+
+                Heartbeat heartbeat =
+                        new Heartbeat(
+                                NODE_ID,
+                                System.currentTimeMillis()
+                        );
+
+                String heartbeatMessage =
+                        mapper.writeValueAsString(
+                                heartbeat
+                        );
+
+                writer.println(
+                        heartbeatMessage
+                );
+
+                System.out.println(
+                        "Heartbeat sent: "
+                                + heartbeatMessage
+                );
+
+                Thread.sleep(
+                        HEARTBEAT_INTERVAL_MS
+                );
+            }
 
         } catch (Exception e) {
 
             System.err.println(
-                    "Could not register with Master Server: "
+                    "Storage node stopped: "
                             + e.getMessage()
             );
         }
