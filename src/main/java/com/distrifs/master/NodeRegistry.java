@@ -1,9 +1,13 @@
 package com.distrifs.master;
 
 import com.distrifs.model.NodeRegistration;
-
+import com.distrifs.database.NodeRepository;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+
+
+
 
 public class NodeRegistry {
 
@@ -13,31 +17,74 @@ public class NodeRegistry {
     private final Map<String, Long> lastHeartbeats =
             new ConcurrentHashMap<>();
 
-    public void registerNode(NodeRegistration node) {
+    private final NodeRepository nodeRepository;
 
-        nodes.put(node.getNodeId(), node);
+    public NodeRegistry(NodeRepository nodeRepository) {
+    this.nodeRepository = nodeRepository;
+}
 
-        lastHeartbeats.put(
-                node.getNodeId(),
-                System.currentTimeMillis()
-        );
+    
+
+        public void registerNode(NodeRegistration node) {
+
+    nodes.put(
+            node.getNodeId(),
+            node
+    );
+
+    lastHeartbeats.put(
+            node.getNodeId(),
+            System.currentTimeMillis()
+    );
+
+    try {
+
+        nodeRepository.registerNode(node);
 
         System.out.println(
-                "Node added to registry: "
+                "Node persisted to database: "
                         + node.getNodeId()
         );
+
+    } catch (Exception e) {
+
+        System.err.println(
+                "Failed to persist node: "
+                        + e.getMessage()
+        );
     }
+
+    System.out.println(
+            "Node added to registry: "
+                    + node.getNodeId()
+    );
+}
+    
 
     public void updateHeartbeat(String nodeId) {
 
-        if (nodes.containsKey(nodeId)) {
+    if (nodes.containsKey(nodeId)) {
 
-            lastHeartbeats.put(
-                    nodeId,
-                    System.currentTimeMillis()
+        lastHeartbeats.put(
+                nodeId,
+                System.currentTimeMillis()
+        );
+
+        try {
+
+            nodeRepository.updateHeartbeat(
+                    nodeId
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Failed to update heartbeat in database: "
+                            + e.getMessage()
             );
         }
     }
+}
 
     public long getLastHeartbeat(String nodeId) {
 

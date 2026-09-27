@@ -1,5 +1,5 @@
 package com.distrifs.master;
-
+import com.distrifs.database.NodeRepository;
 import com.distrifs.model.Heartbeat;
 import com.distrifs.model.NodeRegistration;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,8 +21,13 @@ public class MasterServer {
         System.out.println("       DistriFS Master Server");
         System.out.println("=================================");
 
-        NodeRegistry nodeRegistry =
-                new NodeRegistry();
+        NodeRepository nodeRepository =
+        new NodeRepository();
+
+NodeRegistry nodeRegistry =
+        new NodeRegistry(
+                nodeRepository
+        );
 
         Thread failureDetector =
         new Thread(
