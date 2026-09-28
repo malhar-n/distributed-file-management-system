@@ -2,7 +2,7 @@ package com.distrifs.scheduler;
 
 import com.distrifs.model.FileChunk;
 import com.distrifs.model.NodeRegistration;
-
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,14 +45,17 @@ public class ChunkPlacementTest {
                                 6003
                         )
                 );
-
+            Set<String> unavailableNodes =
+        Set.of("node-02"
+        );
         ChunkPlacementStrategy strategy =
                 new ChunkPlacementStrategy();
 
         Map<Integer, NodeRegistration> placement =
                 strategy.placeChunks(
                         chunks,
-                        nodes
+                        nodes,
+                         unavailableNodes
                 );
 
         System.out.println(
